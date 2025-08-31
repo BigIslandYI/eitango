@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英単語クイズ</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+```
+    .quiz-container {
+        background: white;
+        border-radius: 15px;
+        padding: 30px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        max-width: 600px;
+        width: 100%;
+        text-align: center;
+    }
+
+    h1 {
+        color: #333;
+        margin-bottom: 30px;
+        font-size: 2em;
+    }
+
+    .progress {
+        background: #f0f0f0;
+        border-radius: 10px;
+        height: 8px;
+        margin-bottom: 30px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, #4CAF50, #45a049);
+        height: 100%;
+        transition: width 0.3s ease;
+        border-radius: 10px;
+    }
+
+    .question-counter {
+        font-size: 1.1em;
+        color: #666;
+        margin-bottom: 20px;
+    }
+
+    .question {
+        font-size: 1.5em;
+        color: #333;
+        margin-bottom: 30px;
+        font-weight: 500;
+    }
+
+    .options {
+        display: grid;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .option {
+        background: #f8f9fa;
+        border: 2px solid #e9ecef;
+        padding: 15px 20px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1.1em;
+        font-weight: 500;
+    }
+
+    .option:hover {
+        background: #e9ecef;
+        border-color: #6c757d;
+        transform: translateY(-2px);
+    }
+
+    .option.correct {
+        background: #d4edda;
+        border-color: #28a745;
+        color: #155724;
+    }
+
+    .option.incorrect {
+        background: #f8d7da;
+        border-color: #dc3545;
+        color: #721c24;
+    }
+
+    .option.disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .next-btn {
+        background: linear-gradient(45deg, #4CAF50, #45a049);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.1em;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: none;
+    }
+
+    .next-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(76, 175, 80, 0.3);
+    }
+
+    .result {
+        font-size: 1.3em;
+        margin: 20px 0;
+        padding: 15px;
+        border-radius: 10px;
+        font-weight: 500;
+    }
+
+    .result.correct {
+        background: #d4edda;
+        color: #155724;
+        border: 2px solid #28a745;
+    }
+
+    .result.incorrect {
+        background: #f8d7da;
+        color: #721c24;
+        border: 2px solid #dc3545;
+    }
+
+    .final-score {
+        font-size: 2em;
+        color: #333;
+        margin: 30px 0;
+    }
+
+    .restart-btn {
+        background: linear-gradient(45deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        font-size: 1.1em;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .restart-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+</style>
+```
+
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>🎯 英単語クイズ</h1>
+
+```
+    <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <div id="quizContent">
+        <div class="question-counter" id="questionCounter">問題 1 / 10</div>
+        <div class="question" id="question">loading...</div>
+        <div class="options" id="options"></div>
+        <div id="result"></div>
+        <button class="next-btn" id="nextBtn" onclick="nextQuestion()">次の問題へ</button>
+    </div>
+
+    <div id="finalResult" style="display: none;">
+        <div class="final-score" id="finalScore"></div>
+        <button class="restart-btn" onclick="restartQuiz()">もう一度挑戦</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "「本」を英語で言うと？",
+            options: ["book", "pen", "desk", "chair"],
+            correct: 0
+        },
+        {
+            question: "「犬」を英語で言うと？",
+            options: ["cat", "dog", "bird", "fish"],
+            correct: 1
+        },
+        {
+            question: "「赤い」を英語で言うと？",
+            options: ["blue", "green", "red", "yellow"],
+            correct: 2
+        },
+        {
+            question: "「学校」を英語で言うと？",
+            options: ["hospital", "library", "park", "school"],
+            correct: 3
+        },
+        {
+            question: "「車」を英語で言うと？",
+            options: ["car", "bus", "train", "plane"],
+            correct: 0
+        },
+        {
+            question: "「水」を英語で言うと？",
+            options: ["milk", "water", "juice", "coffee"],
+            correct: 1
+        },
+        {
+            question: "「大きい」を英語で言うと？",
+            options: ["small", "tall", "big", "short"],
+            correct: 2
+        },
+        {
+            question: "「友達」を英語で言うと？",
+            options: ["teacher", "student", "parent", "friend"],
+            correct: 3
+        },
+        {
+            question: "「食べる」を英語で言うと？",
+            options: ["eat", "drink", "sleep", "walk"],
+            correct: 0
+        },
+        {
+            question: "「幸せな」を英語で言うと？",
+            options: ["sad", "happy", "angry", "tired"],
+            correct: 1
+        }
+    ];
+
+    let currentQuestion = 0;
+    let score = 0;
+    let answered = false;
+
+    function updateProgressBar() {
+        const progress = ((currentQuestion + 1) / questions.length) * 100;
+        document.getElementById('progressBar').style.width = progress + '%';
+    }
+
+    function displayQuestion() {
+        const q = questions[currentQuestion];
+        document.getElementById('questionCounter').textContent = `問題 ${currentQuestion + 1} / ${questions.length}`;
+        document.getElementById('question').textContent = q.question;
+        
+        const optionsContainer = document.getElementById('options');
+        optionsContainer.innerHTML = '';
+        
+        q.options.forEach((option, index) => {
+            const optionElement = document.createElement('div');
+            optionElement.className = 'option';
+            optionElement.textContent = option;
+            optionElement.onclick = () => selectAnswer(index);
+            optionsContainer.appendChild(optionElement);
+        });
+
+        document.getElementById('result').innerHTML = '';
+        document.getElementById('nextBtn').style.display = 'none';
+        answered = false;
+        updateProgressBar();
+    }
+
+    function selectAnswer(selectedIndex) {
+        if (answered) return;
+        
+        answered = true;
+        const q = questions[currentQuestion];
+        const options = document.querySelectorAll('.option');
+        
+        // 全ての選択肢を無効化
+        options.forEach(option => option.classList.add('disabled'));
+        
+        if (selectedIndex === q.correct) {
+            // 正解の場合
+            options[selectedIndex].classList.add('correct');
+            document.getElementById('result').innerHTML = '<div class="result correct">🎉 正解です！</div>';
+            score++;
+        } else {
+            // 不正解の場合
+            options[selectedIndex].classList.add('incorrect');
+            options[q.correct].classList.add('correct');
+            document.getElementById('result').innerHTML = `<div class="result incorrect">❌ 不正解です。正解は「${q.options[q.correct]}」でした。</div>`;
+        }
+        
+        document.getElementById('nextBtn').style.display = 'inline-block';
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        
+        if (currentQuestion < questions.length) {
+            displayQuestion();
+        } else {
+            showFinalResult();
+        }
+    }
+
+    function showFinalResult() {
+        document.getElementById('quizContent').style.display = 'none';
+        document.getElementById('finalResult').style.display = 'block';
+        
+        const percentage = Math.round((score / questions.length) * 100);
+        let message = '';
+        let emoji = '';
+        
+        if (percentage >= 90) {
+            message = '素晴らしい！';
+            emoji = '🌟';
+        } else if (percentage >= 70) {
+            message = 'よくできました！';
+            emoji = '👏';
+        } else if (percentage >= 50) {
+            message = 'もう少し頑張りましょう';
+            emoji = '💪';
+        } else {
+            message = '復習が必要です';
+            emoji = '📚';
+        }
+        
+        document.getElementById('finalScore').innerHTML = `
+            ${emoji}<br>
+            ${score} / ${questions.length} 問正解<br>
+            <span style="font-size: 0.8em; color: #666;">${percentage}% - ${message}</span>
+        `;
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        answered = false;
+        document.getElementById('quizContent').style.display = 'block';
+        document.getElementById('finalResult').style.display = 'none';
+        displayQuestion();
+    }
+
+    // 初期化
+    displayQuestion();
+</script>
+```
+
+</body>
+</html>
